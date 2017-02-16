@@ -2,6 +2,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+
+/**
+ This protocol is designed to match interface of PSTAlertController class.
+ 
+ @see https://github.com/steipete/PSTAlertController
+ */
 @protocol MFBAlertProxy
 
 - (void)showWithSender:(nullable id)sender
