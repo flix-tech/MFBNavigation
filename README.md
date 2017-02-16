@@ -47,3 +47,14 @@ So far I didn't find any way to prevent this & redirect the dismissal intention 
 
 It looks like `UIActivityViewController` uses similar (or even the same) presentation mechanism as popovers do,
 though setting presentation controller delegate seems to have no effect.
+
+## Development
+
+The library uses [Carthage](https://github.com/Carthage/Carthage) to fetch test target dependencies.
+To bootstrap the project, run the following command:
+
+```bash
+$ carthage bootstrap --platform ios
+```
+
+Note that [podspec](/MFBNavigation.podspec) might have to be updated upon project changes.
