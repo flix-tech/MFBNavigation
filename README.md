@@ -1,6 +1,6 @@
 # MFBNavigation
 
-This library provides wrapper classes to perform modal presentation & navigation transitions in a queued manner.
+This library provides wrapper classes to perform modal presentation & navigation transitions in a serial manner.
 
 More details are coming soon.
 
