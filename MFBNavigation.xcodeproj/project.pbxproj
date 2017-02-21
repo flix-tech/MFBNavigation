@@ -23,6 +23,7 @@
 		E21864C81DDCE25B00531549 /* OCMock.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E21864C71DDCE25B00531549 /* OCMock.framework */; };
 		E21864CA1DDCE27600531549 /* MFBModalNavigatorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = E21864C91DDCE27600531549 /* MFBModalNavigatorSpec.m */; };
 		E21864CC1DDCE2F800531549 /* Dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21864CB1DDCE2F800531549 /* Dummy.swift */; };
+		E291F4AD1E5C90D500704183 /* MFBAlertNavigation.h in Headers */ = {isa = PBXBuildFile; fileRef = E291F4AC1E5C90D500704183 /* MFBAlertNavigation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E2FD4C101DDCE6E00039A531 /* Nimble.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E21864C31DDCE10900531549 /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E2FD4C111DDCE6E00039A531 /* OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E21864C71DDCE25B00531549 /* OCMock.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E2FD4C121DDCE6E00039A531 /* Quick.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E21864C41DDCE10900531549 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -74,6 +75,7 @@
 		E21864C71DDCE25B00531549 /* OCMock.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OCMock.framework; path = Carthage/Build/iOS/OCMock.framework; sourceTree = "<group>"; };
 		E21864C91DDCE27600531549 /* MFBModalNavigatorSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBModalNavigatorSpec.m; sourceTree = "<group>"; };
 		E21864CB1DDCE2F800531549 /* Dummy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dummy.swift; sourceTree = "<group>"; };
+		E291F4AC1E5C90D500704183 /* MFBAlertNavigation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFBAlertNavigation.h; sourceTree = "<group>"; };
 		E2FD4C131DDF3D1B0039A531 /* MFBPushPopNavigatorSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBPushPopNavigatorSpec.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -122,6 +124,7 @@
 			isa = PBXGroup;
 			children = (
 				E218649A1DDCD41700531549 /* Info.plist */,
+				E291F4AC1E5C90D500704183 /* MFBAlertNavigation.h */,
 				E21864B41DDCD6ED00531549 /* MFBAlertProxy.h */,
 				E21864B61DDCD79E00531549 /* MFBModalNavigator.h */,
 				E21864B71DDCD79E00531549 /* MFBModalNavigator.m */,
@@ -171,6 +174,7 @@
 				E21864B21DDCD56B00531549 /* MFBModalNavigation.h in Headers */,
 				E21864C01DDCD7D000531549 /* MFBSuspendibleUIQueue.h in Headers */,
 				E21864BA1DDCD79E00531549 /* MFBModalNavigator.h in Headers */,
+				E291F4AD1E5C90D500704183 /* MFBAlertNavigation.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
