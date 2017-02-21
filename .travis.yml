@@ -1,0 +1,30 @@
+osx_image: xcode8.2
+language: objective-c
+branches:
+  only:
+  - master
+env:
+  global:
+  - FRAMEWORK_NAME=MFBNavigation
+  - DESTINATION="platform=iOS Simulator,OS=10.1,name=iPhone 7"
+before_install:
+- brew update
+- brew outdated carthage || brew upgrade carthage
+before_script:
+- carthage bootstrap --platform ios
+before_deploy:
+- carthage build --platform ios --no-skip-current
+- carthage archive $FRAMEWORK_NAME
+script:
+- set -o pipefail && xcodebuild test -project $FRAMEWORK_NAME.xcodeproj -scheme $FRAMEWORK_NAME
+  -destination "$DESTINATION" ONLY_ACTIVE_ARCH=YES | xcpretty
+- pod lib lint
+deploy:
+  provider: releases
+  api_key:
+    secure: ouFSKRmfMhYovwN4igcVgQII6yrmwgDNY7YrOanEfD3JokDNJuruPDKuuiEUYnjXQH0MlGcxoCxyseMge0+BIm1pUGcJDkm7ZEdkenspE2BmDlpF1/Q0J9HXvrmpUTVV4J0ewSrw33hbmlZfak9wA1YLQ50cA7vWVGMoilc7eHr8quPMtnLtjvRe8u2MyMupHyaueSDn3QP5UnaQmzbwskL3altnwVIUSjPqN3fbrxxbW3CNZgNfpylrI92KrezDENhxomiBFaGJOC0oyeWYDTUtBmn7Y3NQUkONFWTLtyqOqYnWkpnGzDYHR87HkAqOqKqAVvz7MDIU9MV8tBKLY/eand8rO8ayyh+SGOvdBQnWozi1JK//7OQPzp8GVwRolp1W3vmCzWhjfuZZvEyYs4W+BsSCyBfyZK3uG27qcHRTr9ksMUePZHp+XseqwnaAgU+WIot08OOOQM1a5DI/jBQXDhVQSUnk6NVXLFWrdI3LKtOG4DA1R8ebGm3y6ux4iiavQxTkefEfy8tBybAJlWuDNMs8skhEmNY3TVg7ymqe2LLOcK2O8k4V01rEbthRGT6QcsMr9S8U1tZ4CQcdOMVpxShOMYUMaX5RydV6XJ/60wmVPFWCjEQ9phkNEyeN/EdtwUhq6MjfsdWMR6bjc7aYmZe00CBn6dtxwHzqlUs=
+  file: "$FRAMEWORK_NAME.framework.zip"
+  skip_cleanup: true
+  on:
+    repo: flix-tech/MFBNavigation
+    tags: true
