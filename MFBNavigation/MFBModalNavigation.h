@@ -1,19 +1,14 @@
 #import <UIKit/UIKit.h>
 
-@protocol MFBAlertProxy;
+#import "MFBAlertNavigation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MFBModalNavigation
+@protocol MFBModalNavigation <MFBAlertNavigation>
 
 - (void)showModalViewController:(UIViewController *)viewController
                        animated:(BOOL)animated
                      completion:(nullable dispatch_block_t)completion;
-
-- (void)showAlert:(id<MFBAlertProxy>)alert
-           sender:(nullable id)sender
-         animated:(BOOL)animated
-       completion:(nullable dispatch_block_t)completion;
 
 - (void)dismissModalViewControllerAnimated:(BOOL)animated completion:(nullable dispatch_block_t)completion;
 
