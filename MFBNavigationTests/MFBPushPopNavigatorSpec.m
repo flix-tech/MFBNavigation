@@ -2,17 +2,21 @@
 @import OCMock;
 @import Quick;
 
+#import "MFBNavigationChildrenReplacer.h"
 #import "MFBPushPopNavigator.h"
+#import "MFBPushPopNavigator+Test.h"
 #import "MFBSuspendibleUIQueue.h"
 
 QuickSpecBegin(PushPopNavigator)
 
 __block id modalNavigatorMock;
 __block id navigationControllerMock;
+__block id childrenReplacerMock;
 __block MFBPushPopNavigator *pushPopNavigator;
 
 beforeEach(^{
     navigationControllerMock = OCMStrictClassMock(UINavigationController.class);
+    childrenReplacerMock = OCMStrictClassMock(MFBNavigationChildrenReplacer.class);
 });
 
 describe(@"instantiation", ^{
@@ -83,115 +87,250 @@ describe(@"navigation", ^{
         pushPopNavigator = [[MFBPushPopNavigator alloc] initWithNavigationController:navigationControllerMock
                                                                      transitionQueue:queueMock
                                                                       modalNavigator:modalNavigatorMock];
+
+        [pushPopNavigator setNavigationChildrenReplacer:childrenReplacerMock];
     });
 
     describe(@"push", ^{
-        it(@"is enqueued", ^{
-            id pushedViewControllerStub = [NSObject new];
+        context(@"window", ^{
+            beforeEach(^{
+                id viewStub = OCMStrictClassMock(UIView.class);
+                OCMStub([viewStub window]).andReturn([NSObject new]);
+                OCMStub([navigationControllerMock view]).andReturn(viewStub);
+            });
 
-            id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
-                dispatch_async(dispatch_get_main_queue(), block);
+            it(@"is enqueued", ^{
+                id pushedViewControllerStub = [NSObject new];
 
-                return YES;
-            }];
+                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+                    dispatch_async(dispatch_get_main_queue(), block);
 
-            [queueMock setExpectationOrderMatters:YES];
-            OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
-            OCMExpect([queueMock suspend]);
+                    return YES;
+                }];
 
-            OCMExpect([navigationControllerMock pushViewController:pushedViewControllerStub animated:YES]);
+                [queueMock setExpectationOrderMatters:YES];
+                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+                OCMExpect([queueMock suspend]);
 
-            [pushPopNavigator pushViewController:pushedViewControllerStub animated:YES completion:nil];
+                OCMExpect([navigationControllerMock pushViewController:pushedViewControllerStub animated:YES]);
 
-            OCMVerifyAllWithDelay(queueMock, 1);
+                [pushPopNavigator pushViewController:pushedViewControllerStub animated:YES completion:nil];
 
-            OCMExpect([queueMock resume]);
-            [navigationControllerDelegate navigationController:navigationControllerMock
-                                         didShowViewController:pushedViewControllerStub
-                                                      animated:YES];
-            OCMVerifyAllWithDelay(queueMock, 1);
+                OCMVerifyAllWithDelay(queueMock, 1);
 
-            OCMVerifyAll(navigationControllerMock);
+                OCMExpect([queueMock resume]);
+                [navigationControllerDelegate navigationController:navigationControllerMock
+                                             didShowViewController:pushedViewControllerStub
+                                                          animated:YES];
+                OCMVerifyAllWithDelay(queueMock, 1);
+
+                OCMVerifyAll(navigationControllerMock);
+            });
+
+            it(@"calls completion", ^{
+                id pushedViewControllerStub = [NSObject new];
+
+                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+                    dispatch_async(dispatch_get_main_queue(), block);
+
+                    return YES;
+                }];
+
+                [queueMock makeNice];
+                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+
+                [navigationControllerMock makeNice];
+
+                __auto_type completionCalled = [self expectationWithDescription:@"completion called"];
+
+                [pushPopNavigator pushViewController:pushedViewControllerStub animated:YES completion:^{
+                    [completionCalled fulfill];
+                }];
+                
+                [navigationControllerDelegate navigationController:navigationControllerMock
+                                             didShowViewController:pushedViewControllerStub
+                                                          animated:YES];
+                
+                [self waitForExpectationsWithTimeout:1 handler:nil];
+            });
         });
 
-        it(@"calls completion", ^{
-            id pushedViewControllerStub = [NSObject new];
+        context(@"no window", ^{
+            beforeEach(^{
+                id viewStub = OCMStrictClassMock(UIView.class);
+                OCMStub([viewStub window]).andReturn(nil);
+                OCMStub([navigationControllerMock view]).andReturn(viewStub);
+            });
 
-            id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
-                dispatch_async(dispatch_get_main_queue(), block);
+            it(@"is enqueued and delegated to children replacer", ^{
+                id pushedViewControllerStub = [NSObject new];
 
-                return YES;
-            }];
+                NSArray *viewControllersStub = @[ @"A", @"B" ];
+                NSArray *expectedViewControllers = [viewControllersStub arrayByAddingObject:pushedViewControllerStub];
 
-            [queueMock makeNice];
-            OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+                    dispatch_async(dispatch_get_main_queue(), block);
 
-            [navigationControllerMock makeNice];
+                    return YES;
+                }];
 
-            __auto_type completionCalled = [self expectationWithDescription:@"completion called"];
+                __auto_type completion = ^{};
 
-            [pushPopNavigator pushViewController:pushedViewControllerStub animated:YES completion:^{
-                [completionCalled fulfill];
-            }];
+                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
 
-            [navigationControllerDelegate navigationController:navigationControllerMock
-                                         didShowViewController:pushedViewControllerStub
-                                                      animated:YES];
+                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
 
-            [self waitForExpectationsWithTimeout:1 handler:nil];
+                id replacerMappingMatcher = [OCMArg checkWithBlock:^(MFBNavigationChildrenReplacerMapping mapping) {
+                    __auto_type mappedViewControllers = mapping(viewControllersStub);
+
+                    XCTAssertEqualObjects(mappedViewControllers, expectedViewControllers);
+
+                    return YES;
+                }];
+
+                OCMExpect([childrenReplacerMock replaceChildrenInNavigationController:navigationControllerMock
+                                                                            byMapping:replacerMappingMatcher
+                                                                           completion:completion]);
+
+                [pushPopNavigator pushViewController:pushedViewControllerStub animated:YES completion:completion];
+
+                OCMVerifyAllWithDelay(childrenReplacerMock, 1);
+                OCMVerifyAll(navigationControllerMock);
+                OCMVerifyAll(queueMock);
+            });
         });
     });
 
     describe(@"pop", ^{
-        it(@"is enqueued", ^{
-            id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
-                dispatch_async(dispatch_get_main_queue(), block);
+        sharedExamples(@"only one navigation controller in the stack", ^(QCKDSLSharedExampleContext _) {
+            it(@"does not suspend queue and does not touch navigation controller nor children replacer and calls completion", ^{
+                NSArray *viewControllersStub = @[ @"A" ];
 
-                return YES;
-            }];
+                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
 
-            [queueMock setExpectationOrderMatters:YES];
-            OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
-            OCMExpect([queueMock suspend]);
+                OCMExpect([queueMock enqueueBlock:[OCMArg invokeBlock]]);
 
-            OCMExpect([navigationControllerMock popViewControllerAnimated:YES]);
+                __block NSInteger completionCalledTimes = 0;
+                [pushPopNavigator popViewControllerAnimated:YES completion:^{
+                    completionCalledTimes++;
+                }];
 
-            [pushPopNavigator popViewControllerAnimated:YES completion:nil];
+                OCMVerifyAllWithDelay(queueMock, 1);
 
-            OCMVerifyAllWithDelay(queueMock, 1);
-
-            OCMExpect([queueMock resume]);
-            [navigationControllerDelegate navigationController:navigationControllerMock
-                                         didShowViewController:(id) [NSObject new]
-                                                      animated:YES];
-            OCMVerifyAllWithDelay(queueMock, 1);
-            
-            OCMVerifyAll(navigationControllerMock);
+                XCTAssertEqual(completionCalledTimes, 1);
+            });
         });
 
-        it(@"calls completion", ^{
-            id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
-                dispatch_async(dispatch_get_main_queue(), block);
+        context(@"window", ^{
+            beforeEach(^{
+                id viewStub = OCMStrictClassMock(UIView.class);
+                OCMStub([viewStub window]).andReturn([NSObject new]);
+                OCMStub([navigationControllerMock view]).andReturn(viewStub);
+            });
 
-                return YES;
-            }];
+            itBehavesLike(@"only one navigation controller in the stack", ^{ return @{}; });
 
-            [queueMock makeNice];
-            OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+            it(@"is enqueued", ^{
+                NSArray *viewControllersStub = @[ @"A", @"B" ];
+                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
 
-            [navigationControllerMock makeNice];
+                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+                    dispatch_async(dispatch_get_main_queue(), block);
 
-            __auto_type completionCalled = [self expectationWithDescription:@"completion called"];
+                    return YES;
+                }];
 
-            [pushPopNavigator popViewControllerAnimated:YES completion:^{
-                [completionCalled fulfill];
-            }];
+                [queueMock setExpectationOrderMatters:YES];
+                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+                OCMExpect([queueMock suspend]);
 
-            [navigationControllerDelegate navigationController:navigationControllerMock
-                                         didShowViewController:(id) [NSObject new]
-                                                      animated:YES];
+                OCMExpect([navigationControllerMock popViewControllerAnimated:YES]);
 
-            [self waitForExpectationsWithTimeout:1 handler:nil];
+                [pushPopNavigator popViewControllerAnimated:YES completion:nil];
+
+                OCMVerifyAllWithDelay(queueMock, 1);
+
+                OCMExpect([queueMock resume]);
+                [navigationControllerDelegate navigationController:navigationControllerMock
+                                             didShowViewController:(id) [NSObject new]
+                                                          animated:YES];
+                OCMVerifyAllWithDelay(queueMock, 1);
+                
+                OCMVerifyAll(navigationControllerMock);
+            });
+
+            it(@"calls completion", ^{
+                NSArray *viewControllersStub = @[ @"A", @"B" ];
+                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
+
+                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+                    dispatch_async(dispatch_get_main_queue(), block);
+
+                    return YES;
+                }];
+
+                [queueMock makeNice];
+                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+
+                [navigationControllerMock makeNice];
+
+                __auto_type completionCalled = [self expectationWithDescription:@"completion called"];
+
+                [pushPopNavigator popViewControllerAnimated:YES completion:^{
+                    [completionCalled fulfill];
+                }];
+
+                [navigationControllerDelegate navigationController:navigationControllerMock
+                                             didShowViewController:(id) [NSObject new]
+                                                          animated:YES];
+
+                [self waitForExpectationsWithTimeout:1 handler:nil];
+            });
+        });
+
+        context(@"no window", ^{
+            beforeEach(^{
+                id viewStub = OCMStrictClassMock(UIView.class);
+                OCMStub([viewStub window]).andReturn(nil);
+                OCMStub([navigationControllerMock view]).andReturn(viewStub);
+            });
+
+            it(@"is enqueued and delegated to children replacer", ^{
+                NSArray *viewControllersStub = @[ @"A", @"B" ];
+                NSArray *expectedViewControllers = @[ viewControllersStub[0] ];
+
+                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+                    dispatch_async(dispatch_get_main_queue(), block);
+
+                    return YES;
+                }];
+
+                __auto_type completion = ^{};
+
+                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+
+                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
+
+                id replacerMappingMatcher = [OCMArg checkWithBlock:^(MFBNavigationChildrenReplacerMapping mapper) {
+                    __auto_type mappedViewControllers = mapper(viewControllersStub);
+
+                    XCTAssertEqualObjects(mappedViewControllers, expectedViewControllers);
+
+                    return YES;
+                }];
+
+                OCMExpect([childrenReplacerMock replaceChildrenInNavigationController:navigationControllerMock
+                                                                            byMapping:replacerMappingMatcher
+                                                                           completion:completion]);
+
+                [pushPopNavigator popViewControllerAnimated:YES completion:completion];
+
+                OCMVerifyAllWithDelay(childrenReplacerMock, 1);
+                OCMVerifyAll(navigationControllerMock);
+                OCMVerifyAll(queueMock);
+            });
+
+            itBehavesLike(@"only one navigation controller in the stack", ^{ return @{}; });
         });
     });
 
@@ -256,31 +395,19 @@ describe(@"navigation", ^{
         });
 
         context(@"no window", ^{
-            __block id viewClassMock;
-
             beforeEach(^{
                 id viewStub = OCMStrictClassMock(UIView.class);
                 OCMStub([viewStub window]).andReturn(nil);
                 OCMStub([navigationControllerMock view]).andReturn(viewStub);
-
-                viewClassMock = OCMStrictClassMock(UIView.class);
-            });
-
-            afterEach(^{
-                viewClassMock = nil;
             });
 
             itBehavesLike(@"target view controller is alrady on top of navigation stack", ^{ return @{}; });
 
-            it(@"is enqueued and view controllers are replaced", ^{
+            it(@"is enqueued and delegated to children replacer", ^{
                 id targetViewControllerStub = [NSObject new];
 
                 NSArray *viewControllersStub = @[ @"A", targetViewControllerStub, @"B" ];
                 NSArray *expectedViewControllers = [viewControllersStub subarrayWithRange:NSMakeRange(0, 2)];
-
-                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
-                OCMStub([navigationControllerMock topViewController]).andReturn(viewControllersStub.lastObject);
-
 
                 id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
                     dispatch_async(dispatch_get_main_queue(), block);
@@ -290,75 +417,47 @@ describe(@"navigation", ^{
 
                 OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
 
-                OCMExpect([navigationControllerMock setViewControllers:expectedViewControllers animated:NO]);
-
-                [pushPopNavigator popToViewController:targetViewControllerStub animated:YES];
-
-                OCMVerifyAllWithDelay(navigationControllerMock, 1);
-                OCMVerifyAll(queueMock);
-            });
-
-            it(@"disables & re-enables view animations", ^{
-                [navigationControllerMock makeNice];
-
-                id targetViewControllerStub = [NSObject new];
-
-                NSArray *viewControllersStub = @[ @"A", targetViewControllerStub, @"B" ];
-
                 OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
                 OCMStub([navigationControllerMock topViewController]).andReturn(viewControllersStub.lastObject);
 
-                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
-                    dispatch_async(dispatch_get_main_queue(), block);
+                id replacerMappingMatcher = [OCMArg checkWithBlock:^(MFBNavigationChildrenReplacerMapping mapper) {
+                    __auto_type mappedViewControllers = mapper(viewControllersStub);
+
+                    XCTAssertEqualObjects(mappedViewControllers, expectedViewControllers);
 
                     return YES;
                 }];
 
-                [viewClassMock setExpectationOrderMatters:YES];
-                OCMExpect([viewClassMock areAnimationsEnabled]).andReturn(YES);
-                OCMExpect([viewClassMock setAnimationsEnabled:NO]);
-                OCMExpect([viewClassMock setAnimationsEnabled:YES]);
-
-                OCMStub([queueMock enqueueBlock:queueBlockValidator]);
+                OCMExpect([childrenReplacerMock replaceChildrenInNavigationController:navigationControllerMock
+                                                                            byMapping:replacerMappingMatcher
+                                                                           completion:nil]);
 
                 [pushPopNavigator popToViewController:targetViewControllerStub animated:YES];
 
-                OCMVerifyAllWithDelay(viewClassMock, 1);
+                OCMVerifyAllWithDelay(childrenReplacerMock, 1);
+                OCMVerifyAll(navigationControllerMock);
+                OCMVerifyAll(queueMock);
             });
         });
-    })  ;
+    });
 
     describe(@"pop to root", ^{
         sharedExamples(@"one view controller in navigation stack", ^(QCKDSLSharedExampleContext _) {
-            it(@"does not suspend queue and does not touch navigation controller", ^{
-                id targetViewControllerStub = [NSObject new];
-
-                NSArray *viewControllersStub = @[ targetViewControllerStub ];
+            it(@"does not suspend queue and does not touch navigation controller nor children replacer and calls completion", ^{
+                NSArray *viewControllersStub = @[ @"A" ];
 
                 OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
 
                 OCMExpect([queueMock enqueueBlock:[OCMArg invokeBlock]]);
 
-                [pushPopNavigator popToRootAnimated:YES completion:nil];
-
-                OCMVerifyAllWithDelay(queueMock, 1);
-            });
-
-            it(@"calls completion", ^{
-                id targetViewControllerStub = [NSObject new];
-
-                NSArray *viewControllersStub = @[ targetViewControllerStub ];
-
-                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
-
-                OCMStub([queueMock enqueueBlock:[OCMArg invokeBlock]]);
-
-                __block BOOL completionCalled = NO;
+                __block NSInteger completionCalledTimes = 0;
                 [pushPopNavigator popToRootAnimated:YES completion:^{
-                    completionCalled = YES;
+                    completionCalledTimes++;
                 }];
 
-                expect(completionCalled).toEventually(beTrue());
+                OCMVerifyAllWithDelay(queueMock, 1);
+
+                XCTAssertEqual(completionCalledTimes, 1);
             });
         });
 
@@ -454,81 +553,41 @@ describe(@"navigation", ^{
 
             itBehavesLike(@"one view controller in navigation stack", ^{ return @{}; });
 
-            it(@"is enqueued and view controllers are replaced with root", ^{
+            it(@"is enqueued and delegated to children replacer", ^{
                 id targetViewControllerStub = [NSObject new];
 
                 NSArray *viewControllersStub = @[ targetViewControllerStub, @"A", @"B" ];
                 NSArray *expectedViewControllers = [viewControllersStub subarrayWithRange:NSMakeRange(0, 1)];
 
-                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
-
                 id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
                     dispatch_async(dispatch_get_main_queue(), block);
 
                     return YES;
                 }];
+
+                __auto_type completion = ^{};
 
                 OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
 
-                OCMExpect([navigationControllerMock setViewControllers:expectedViewControllers animated:NO]);
+                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
 
-                [pushPopNavigator popToRootAnimated:YES completion:nil];
+                id replacerMappingMatcher = [OCMArg checkWithBlock:^(MFBNavigationChildrenReplacerMapping mapper) {
+                    __auto_type mappedViewControllers = mapper(viewControllersStub);
 
-                OCMVerifyAllWithDelay(navigationControllerMock, 1);
+                    XCTAssertEqualObjects(mappedViewControllers, expectedViewControllers);
+
+                    return YES;
+                }];
+
+                OCMExpect([childrenReplacerMock replaceChildrenInNavigationController:navigationControllerMock
+                                                                            byMapping:replacerMappingMatcher
+                                                                           completion:completion]);
+
+                [pushPopNavigator popToRootAnimated:YES completion:completion];
+
+                OCMVerifyAllWithDelay(childrenReplacerMock, 1);
+                OCMVerifyAll(navigationControllerMock);
                 OCMVerifyAll(queueMock);
-            });
-
-            it(@"disables & re-enables view animations", ^{
-                [navigationControllerMock makeNice];
-
-                id targetViewControllerStub = [NSObject new];
-
-                NSArray *viewControllersStub = @[ targetViewControllerStub, @"A", @"B" ];
-
-                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
-
-                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
-                    dispatch_async(dispatch_get_main_queue(), block);
-
-                    return YES;
-                }];
-
-                [viewClassMock setExpectationOrderMatters:YES];
-                OCMExpect([viewClassMock areAnimationsEnabled]).andReturn(YES);
-                OCMExpect([viewClassMock setAnimationsEnabled:NO]);
-                OCMExpect([viewClassMock setAnimationsEnabled:YES]);
-                
-                OCMStub([queueMock enqueueBlock:queueBlockValidator]);
-                
-                [pushPopNavigator popToRootAnimated:YES completion:nil];
-                
-                OCMVerifyAllWithDelay(viewClassMock, 1);
-            });
-
-            it(@"calls completion", ^{
-                [navigationControllerMock makeNice];
-
-                id targetViewControllerStub = [NSObject new];
-
-                NSArray *viewControllersStub = @[ targetViewControllerStub, @"A", @"B" ];
-
-                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
-
-                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
-                    dispatch_async(dispatch_get_main_queue(), block);
-
-                    return YES;
-                }];
-
-                OCMStub([queueMock enqueueBlock:queueBlockValidator]);
-
-                __block BOOL completionCalled = NO;
-                [pushPopNavigator popToRootAnimated:YES completion:^{
-                    expect(completionCalled).to(beFalse());
-                    completionCalled = YES;
-                }];
-
-                expect(completionCalled).toEventually(beTrue());
             });
         });
     });
