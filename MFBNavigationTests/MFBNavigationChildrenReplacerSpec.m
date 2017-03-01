@@ -19,15 +19,12 @@ beforeEach(^{
 });
 
 it(@"replaces view controllers in animationless manner after applying transformation to current ones and calls completion thereafter", ^{
-    id currentViewControllersStub = [NSObject new];
-    id mappedViewControllersStub = [NSObject new];
+    id newViewControllersStub = [NSObject new];
 
     __block NSInteger completionCalledTimes = 0;
 
-    OCMExpect([navigationControllerMock viewControllers]).andReturn(currentViewControllersStub);
-
     OCMExpect([viewClassMock performWithoutAnimation:[OCMArg checkWithBlock:^(dispatch_block_t block) {
-        OCMExpect([navigationControllerMock setViewControllers:mappedViewControllersStub animated:NO])
+        OCMExpect([navigationControllerMock setViewControllers:newViewControllersStub animated:NO])
             .andDo(^(NSInvocation *_) {
                 XCTAssertEqual(completionCalledTimes, 0);
             });
@@ -37,14 +34,8 @@ it(@"replaces view controllers in animationless manner after applying transforma
         return YES;
     }]]);
 
-    __auto_type mapper = ^(NSArray<UIViewController *> *currentViewControllers) {
-        XCTAssertEqual(currentViewControllers, currentViewControllersStub);
-
-        return mappedViewControllersStub;
-    };
-
     [replacer replaceChildrenInNavigationController:navigationControllerMock
-                                          byMapping:mapper
+                                       withChildren:newViewControllersStub
                                          completion:^{
                                              completionCalledTimes++;
                                          }];

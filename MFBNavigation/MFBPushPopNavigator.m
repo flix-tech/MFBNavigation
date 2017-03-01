@@ -85,12 +85,8 @@
 
             [navigationController popToRootViewControllerAnimated:animated];
         } else {
-            __auto_type mapping = ^(NSArray<UIViewController *> *currentViewControllers) {
-                return @[ currentViewControllers[0] ];
-            };
-
             [_childrenReplacer replaceChildrenInNavigationController:navigationController
-                                                           byMapping:mapping
+                                                        withChildren:@[ navigationController.viewControllers[0] ]
                                                           completion:completion];
         }
     }];
@@ -113,13 +109,12 @@
             [_transitionQueue suspend];
             [navigationController pushViewController:viewController animated:animated];
         } else {
-            __auto_type mapping = ^(NSArray<UIViewController *> *currentViewControllers) {
-                NSMutableArray<UIViewController *> *newViewControllers = [currentViewControllers mutableCopy];
-                [newViewControllers addObject:viewController];
-                return newViewControllers;
-            };
+            NSMutableArray<UIViewController *> *newViewControllers = [navigationController.viewControllers mutableCopy];
+            [newViewControllers addObject:viewController];
 
-            [_childrenReplacer replaceChildrenInNavigationController:navigationController byMapping:mapping completion:completion];
+            [_childrenReplacer replaceChildrenInNavigationController:navigationController
+                                                        withChildren:newViewControllers
+                                                          completion:completion];
         }
     }];
 }
@@ -153,8 +148,11 @@
                 return [currentViewControllers subarrayWithRange:newRange];
             };
 
+            NSRange newRange = NSMakeRange(0, targetViewControllerIndex + 1);
+            __auto_type newViewControllers = [navigationController.viewControllers subarrayWithRange:newRange];
+
             [_childrenReplacer replaceChildrenInNavigationController:navigationController
-                                                           byMapping:mapping
+                                                        withChildren:newViewControllers
                                                           completion:nil];
         }
     }];
@@ -182,13 +180,12 @@
             [_transitionQueue suspend];
             [navigationController popViewControllerAnimated:animated];
         } else {
-            __auto_type mapping = ^(NSArray<UIViewController *> *currentViewControllers) {
-                NSMutableArray<UIViewController *> *newViewControllers = [currentViewControllers mutableCopy];
-                [newViewControllers removeObjectAtIndex:newViewControllers.count - 1];
-                return newViewControllers;
-            };
+            NSMutableArray<UIViewController *> *newViewControllers = [navigationController.viewControllers mutableCopy];
+            [newViewControllers removeObjectAtIndex:newViewControllers.count - 1];
 
-            [_childrenReplacer replaceChildrenInNavigationController:navigationController byMapping:mapping completion:completion];
+            [_childrenReplacer replaceChildrenInNavigationController:navigationController
+                                                        withChildren:newViewControllers
+                                                          completion:completion];
         }
     }];
 }

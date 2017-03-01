@@ -180,16 +180,8 @@ describe(@"navigation", ^{
 
                 OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
 
-                id replacerMappingMatcher = [OCMArg checkWithBlock:^(MFBNavigationChildrenReplacerMapping mapping) {
-                    __auto_type mappedViewControllers = mapping(viewControllersStub);
-
-                    XCTAssertEqualObjects(mappedViewControllers, expectedViewControllers);
-
-                    return YES;
-                }];
-
                 OCMExpect([childrenReplacerMock replaceChildrenInNavigationController:navigationControllerMock
-                                                                            byMapping:replacerMappingMatcher
+                                                                         withChildren:expectedViewControllers
                                                                            completion:completion]);
 
                 [pushPopNavigator pushViewController:pushedViewControllerStub animated:YES completion:completion];
@@ -311,16 +303,8 @@ describe(@"navigation", ^{
 
                 OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
 
-                id replacerMappingMatcher = [OCMArg checkWithBlock:^(MFBNavigationChildrenReplacerMapping mapper) {
-                    __auto_type mappedViewControllers = mapper(viewControllersStub);
-
-                    XCTAssertEqualObjects(mappedViewControllers, expectedViewControllers);
-
-                    return YES;
-                }];
-
                 OCMExpect([childrenReplacerMock replaceChildrenInNavigationController:navigationControllerMock
-                                                                            byMapping:replacerMappingMatcher
+                                                                         withChildren:expectedViewControllers
                                                                            completion:completion]);
 
                 [pushPopNavigator popViewControllerAnimated:YES completion:completion];
@@ -420,16 +404,8 @@ describe(@"navigation", ^{
                 OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
                 OCMStub([navigationControllerMock topViewController]).andReturn(viewControllersStub.lastObject);
 
-                id replacerMappingMatcher = [OCMArg checkWithBlock:^(MFBNavigationChildrenReplacerMapping mapper) {
-                    __auto_type mappedViewControllers = mapper(viewControllersStub);
-
-                    XCTAssertEqualObjects(mappedViewControllers, expectedViewControllers);
-
-                    return YES;
-                }];
-
                 OCMExpect([childrenReplacerMock replaceChildrenInNavigationController:navigationControllerMock
-                                                                            byMapping:replacerMappingMatcher
+                                                                         withChildren:expectedViewControllers
                                                                            completion:nil]);
 
                 [pushPopNavigator popToViewController:targetViewControllerStub animated:YES];
@@ -571,16 +547,8 @@ describe(@"navigation", ^{
 
                 OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
 
-                id replacerMappingMatcher = [OCMArg checkWithBlock:^(MFBNavigationChildrenReplacerMapping mapper) {
-                    __auto_type mappedViewControllers = mapper(viewControllersStub);
-
-                    XCTAssertEqualObjects(mappedViewControllers, expectedViewControllers);
-
-                    return YES;
-                }];
-
                 OCMExpect([childrenReplacerMock replaceChildrenInNavigationController:navigationControllerMock
-                                                                            byMapping:replacerMappingMatcher
+                                                                         withChildren:expectedViewControllers
                                                                            completion:completion]);
 
                 [pushPopNavigator popToRootAnimated:YES completion:completion];

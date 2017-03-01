@@ -3,16 +3,14 @@
 @implementation MFBNavigationChildrenReplacer
 
 - (void)replaceChildrenInNavigationController:(UINavigationController *)navigationController
-                                    byMapping:(MFBNavigationChildrenReplacerMapping)mapping
+                                 withChildren:(NSArray<UIViewController *> *)newChildren
                                    completion:(nullable dispatch_block_t)completion
 {
-    NSCParameterAssert(mapping != nil);
     NSCParameterAssert(navigationController != nil);
-
-    __auto_type newViewControllers = mapping(navigationController.viewControllers);
+    NSCParameterAssert(newChildren != nil);
 
     [UIView performWithoutAnimation:^{
-        [navigationController setViewControllers:newViewControllers animated:NO];
+        [navigationController setViewControllers:newChildren animated:NO];
     }];
 
     if (completion) {
