@@ -169,7 +169,7 @@
             return;
         }
 
-        if (navigationController.viewControllers.count <= 1) {
+        if (navigationController.viewControllers.count < 2) {
             if (completion) {
                 completion();
             }
