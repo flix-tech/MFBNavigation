@@ -24,6 +24,10 @@
 		E21864CA1DDCE27600531549 /* MFBModalNavigatorSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = E21864C91DDCE27600531549 /* MFBModalNavigatorSpec.m */; };
 		E21864CC1DDCE2F800531549 /* Dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21864CB1DDCE2F800531549 /* Dummy.swift */; };
 		E291F4AD1E5C90D500704183 /* MFBAlertNavigation.h in Headers */ = {isa = PBXBuildFile; fileRef = E291F4AC1E5C90D500704183 /* MFBAlertNavigation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		E2AAF3611E66E2A0009F58A5 /* MFBPushPopNavigator+Test.h in Headers */ = {isa = PBXBuildFile; fileRef = E2AAF35F1E66E2A0009F58A5 /* MFBPushPopNavigator+Test.h */; };
+		E2DEEA881E66D23300A1DF4D /* MFBNavigationChildrenReplacer.h in Headers */ = {isa = PBXBuildFile; fileRef = E2DEEA861E66D23300A1DF4D /* MFBNavigationChildrenReplacer.h */; };
+		E2DEEA891E66D23300A1DF4D /* MFBNavigationChildrenReplacer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2DEEA871E66D23300A1DF4D /* MFBNavigationChildrenReplacer.m */; };
+		E2DEEA8B1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = E2DEEA8A1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m */; };
 		E2FD4C101DDCE6E00039A531 /* Nimble.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E21864C31DDCE10900531549 /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E2FD4C111DDCE6E00039A531 /* OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E21864C71DDCE25B00531549 /* OCMock.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E2FD4C121DDCE6E00039A531 /* Quick.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E21864C41DDCE10900531549 /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -76,6 +80,10 @@
 		E21864C91DDCE27600531549 /* MFBModalNavigatorSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBModalNavigatorSpec.m; sourceTree = "<group>"; };
 		E21864CB1DDCE2F800531549 /* Dummy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dummy.swift; sourceTree = "<group>"; };
 		E291F4AC1E5C90D500704183 /* MFBAlertNavigation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFBAlertNavigation.h; sourceTree = "<group>"; };
+		E2AAF35F1E66E2A0009F58A5 /* MFBPushPopNavigator+Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MFBPushPopNavigator+Test.h"; sourceTree = "<group>"; };
+		E2DEEA861E66D23300A1DF4D /* MFBNavigationChildrenReplacer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFBNavigationChildrenReplacer.h; sourceTree = "<group>"; };
+		E2DEEA871E66D23300A1DF4D /* MFBNavigationChildrenReplacer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBNavigationChildrenReplacer.m; sourceTree = "<group>"; };
+		E2DEEA8A1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBNavigationChildrenReplacerSpec.m; sourceTree = "<group>"; };
 		E2FD4C131DDF3D1B0039A531 /* MFBPushPopNavigatorSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBPushPopNavigatorSpec.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -126,15 +134,18 @@
 				E218649A1DDCD41700531549 /* Info.plist */,
 				E291F4AC1E5C90D500704183 /* MFBAlertNavigation.h */,
 				E21864B41DDCD6ED00531549 /* MFBAlertProxy.h */,
+				E21864B01DDCD56B00531549 /* MFBModalNavigation.h */,
 				E21864B61DDCD79E00531549 /* MFBModalNavigator.h */,
 				E21864B71DDCD79E00531549 /* MFBModalNavigator.m */,
-				E21864B01DDCD56B00531549 /* MFBModalNavigation.h */,
+				E21864991DDCD41700531549 /* MFBNavigation.h */,
+				E2DEEA861E66D23300A1DF4D /* MFBNavigationChildrenReplacer.h */,
+				E2DEEA871E66D23300A1DF4D /* MFBNavigationChildrenReplacer.m */,
+				E21864B11DDCD56B00531549 /* MFBPushPopNavigation.h */,
 				E21864B81DDCD79E00531549 /* MFBPushPopNavigator.h */,
 				E21864B91DDCD79E00531549 /* MFBPushPopNavigator.m */,
-				E21864B11DDCD56B00531549 /* MFBPushPopNavigation.h */,
-				E21864991DDCD41700531549 /* MFBNavigation.h */,
 				E21864BE1DDCD7D000531549 /* MFBSuspendibleUIQueue.h */,
 				E21864BF1DDCD7D000531549 /* MFBSuspendibleUIQueue.m */,
+				E2AAF35F1E66E2A0009F58A5 /* MFBPushPopNavigator+Test.h */,
 			);
 			path = MFBNavigation;
 			sourceTree = "<group>";
@@ -145,6 +156,7 @@
 				E21864CB1DDCE2F800531549 /* Dummy.swift */,
 				E21864A61DDCD41700531549 /* Info.plist */,
 				E21864C91DDCE27600531549 /* MFBModalNavigatorSpec.m */,
+				E2DEEA8A1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m */,
 				E2FD4C131DDF3D1B0039A531 /* MFBPushPopNavigatorSpec.m */,
 			);
 			path = MFBNavigationTests;
@@ -171,10 +183,12 @@
 				E21864A71DDCD41700531549 /* MFBNavigation.h in Headers */,
 				E21864BC1DDCD79E00531549 /* MFBPushPopNavigator.h in Headers */,
 				E21864B31DDCD56B00531549 /* MFBPushPopNavigation.h in Headers */,
+				E2AAF3611E66E2A0009F58A5 /* MFBPushPopNavigator+Test.h in Headers */,
 				E21864B21DDCD56B00531549 /* MFBModalNavigation.h in Headers */,
 				E21864C01DDCD7D000531549 /* MFBSuspendibleUIQueue.h in Headers */,
 				E21864BA1DDCD79E00531549 /* MFBModalNavigator.h in Headers */,
 				E291F4AD1E5C90D500704183 /* MFBAlertNavigation.h in Headers */,
+				E2DEEA881E66D23300A1DF4D /* MFBNavigationChildrenReplacer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,6 +297,7 @@
 				E21864C11DDCD7D000531549 /* MFBSuspendibleUIQueue.m in Sources */,
 				E21864BB1DDCD79E00531549 /* MFBModalNavigator.m in Sources */,
 				E21864BD1DDCD79E00531549 /* MFBPushPopNavigator.m in Sources */,
+				E2DEEA891E66D23300A1DF4D /* MFBNavigationChildrenReplacer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -291,6 +306,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E21864CA1DDCE27600531549 /* MFBModalNavigatorSpec.m in Sources */,
+				E2DEEA8B1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m in Sources */,
 				E2FD4C141DDF3D1B0039A531 /* MFBPushPopNavigatorSpec.m in Sources */,
 				E21864CC1DDCE2F800531549 /* Dummy.swift in Sources */,
 			);

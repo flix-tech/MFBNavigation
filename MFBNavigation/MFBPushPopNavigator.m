@@ -1,5 +1,7 @@
 #import "MFBModalNavigator.h"
+#import "MFBNavigationChildrenReplacer.h"
 #import "MFBPushPopNavigator.h"
+#import "MFBPushPopNavigator+Test.h"
 #import "MFBSuspendibleUIQueue.h"
 
 
@@ -11,6 +13,7 @@
 @implementation MFBPushPopNavigator {
     id<MFBModalNavigation> _modalNavigator;
     __weak UINavigationController *_navigationController;
+    MFBNavigationChildrenReplacer *_childrenReplacer;
     dispatch_block_t _transitionCompletion;
     MFBSuspendibleUIQueue *_transitionQueue;
 }
@@ -40,6 +43,8 @@
 
     _modalNavigator = modalNavigator ?: [[MFBModalNavigator alloc] initWithTransitionQueue:_transitionQueue
                                                                             viewController:navigationController];
+
+    _childrenReplacer = [MFBNavigationChildrenReplacer new];
 
     return self;
 }
@@ -74,21 +79,15 @@
             return;
         }
 
-        if (!navigationController.view.window) {
-            // delegate aren't gonna be called in this case, don't suspend queue
-
-            BOOL animationsEnabled = [UIView areAnimationsEnabled];
-            [UIView setAnimationsEnabled:NO];
-            [navigationController setViewControllers:@[ navigationController.viewControllers[0] ] animated:NO];
-            [UIView setAnimationsEnabled:animationsEnabled];
-            if (completion) {
-                completion();
-            }
-        } else {
+        if (navigationController.view.window) {
             _transitionCompletion = completion;
             [_transitionQueue suspend];
 
             [navigationController popToRootViewControllerAnimated:animated];
+        } else {
+            [_childrenReplacer replaceChildrenInNavigationController:navigationController
+                                                        withChildren:@[ navigationController.viewControllers[0] ]
+                                                          completion:completion];
         }
     }];
 }
@@ -104,10 +103,19 @@
             return;
         }
 
-        _transitionCompletion = completion;
+        if (navigationController.view.window) {
+            _transitionCompletion = completion;
 
-        [_transitionQueue suspend];
-        [navigationController pushViewController:viewController animated:animated];
+            [_transitionQueue suspend];
+            [navigationController pushViewController:viewController animated:animated];
+        } else {
+            NSMutableArray<UIViewController *> *newViewControllers = [navigationController.viewControllers mutableCopy];
+            [newViewControllers addObject:viewController];
+
+            [_childrenReplacer replaceChildrenInNavigationController:navigationController
+                                                        withChildren:newViewControllers
+                                                          completion:completion];
+        }
     }];
 }
 
@@ -131,17 +139,16 @@
             return;
         }
 
-        if (!navigationController.view.window) {
+        if (navigationController.view.window) {
+            [_transitionQueue suspend];
+            [navigationController popToViewController:viewController animated:animated];
+        } else {
             NSRange newRange = NSMakeRange(0, targetViewControllerIndex + 1);
             __auto_type newViewControllers = [navigationController.viewControllers subarrayWithRange:newRange];
 
-            BOOL animationsEnabled = [UIView areAnimationsEnabled];
-            [UIView setAnimationsEnabled:NO];
-            [navigationController setViewControllers:newViewControllers animated:NO];
-            [UIView setAnimationsEnabled:animationsEnabled];
-        } else {
-            [_transitionQueue suspend];
-            [navigationController popToViewController:viewController animated:animated];
+            [_childrenReplacer replaceChildrenInNavigationController:navigationController
+                                                        withChildren:newViewControllers
+                                                          completion:nil];
         }
     }];
 }
@@ -155,10 +162,26 @@
             return;
         }
 
-        _transitionCompletion = completion;
+        if (navigationController.viewControllers.count < 2) {
+            if (completion) {
+                completion();
+            }
+            return;
+        }
 
-        [_transitionQueue suspend];
-        [navigationController popViewControllerAnimated:animated];
+        if (navigationController.view.window) {
+            _transitionCompletion = completion;
+
+            [_transitionQueue suspend];
+            [navigationController popViewControllerAnimated:animated];
+        } else {
+            NSMutableArray<UIViewController *> *newViewControllers = [navigationController.viewControllers mutableCopy];
+            [newViewControllers removeObjectAtIndex:newViewControllers.count - 1];
+
+            [_childrenReplacer replaceChildrenInNavigationController:navigationController
+                                                        withChildren:newViewControllers
+                                                          completion:completion];
+        }
     }];
 }
 
@@ -175,6 +198,15 @@
 - (void)dismissModalViewControllerAnimated:(BOOL)animated completion:(dispatch_block_t)completion
 {
     [_modalNavigator dismissModalViewControllerAnimated:animated completion:completion];
+}
+
+#pragma mark - Test API
+
+- (void)setNavigationChildrenReplacer:(MFBNavigationChildrenReplacer *)childrenReplacer
+{
+    NSCParameterAssert(childrenReplacer != nil);
+
+    _childrenReplacer = childrenReplacer;
 }
 
 #pragma mark - Navigation controller delegate
