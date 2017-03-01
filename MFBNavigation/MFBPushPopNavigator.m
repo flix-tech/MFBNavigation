@@ -143,11 +143,6 @@
             [_transitionQueue suspend];
             [navigationController popToViewController:viewController animated:animated];
         } else {
-            __auto_type mapping = ^(NSArray<UIViewController *> *currentViewControllers) {
-                NSRange newRange = NSMakeRange(0, targetViewControllerIndex + 1);
-                return [currentViewControllers subarrayWithRange:newRange];
-            };
-
             NSRange newRange = NSMakeRange(0, targetViewControllerIndex + 1);
             __auto_type newViewControllers = [navigationController.viewControllers subarrayWithRange:newRange];
 
