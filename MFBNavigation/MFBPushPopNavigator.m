@@ -176,7 +176,7 @@
             [navigationController popViewControllerAnimated:animated];
         } else {
             NSMutableArray<UIViewController *> *newViewControllers = [navigationController.viewControllers mutableCopy];
-            [newViewControllers removeObjectAtIndex:newViewControllers.count - 1];
+            [newViewControllers removeLastObject];
 
             [_childrenReplacer replaceChildrenInNavigationController:navigationController
                                                         withChildren:newViewControllers
