@@ -58,8 +58,8 @@ context(@"triggered", ^{
         OCMVerifyAll(unwindDelegateMock);
     });
 
-    it(@"throws if unwind called once more", ^{
-        XCTAssertThrows([token unwind]);
+    it(@"unwind is idempotent", ^{
+        [token unwind];
     });
 });
 
@@ -71,8 +71,8 @@ context(@"unwound", ^{
         [unwindDelegateMock makeStrict];
     });
 
-    it(@"throws when asked to unwind", ^{
-        XCTAssertThrows([token unwind]);
+    it(@"unwind is idempotent", ^{
+        [token unwind];
     });
 });
 
