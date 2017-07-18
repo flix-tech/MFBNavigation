@@ -19,15 +19,24 @@ typedef NS_ENUM(NSInteger, NavigationUnwindTokenState) {
 {
     NSCParameterAssert(unwindTarget != nil);
 
-    NSCAssert(_state != NavigationUnwindTokenStateReady, @"Unwind target has already been set");
-    NSCAssert(_state != NavigationUnwindTokenStateUnwound, @"Unwind has already happened");
+    switch (_state) {
+        case NavigationUnwindTokenStateIdle:
+            _unwindTarget = unwindTarget;
+            _state = NavigationUnwindTokenStateReady;
+            break;
 
-    if (_state == NavigationUnwindTokenStateTriggered) {
-        [_delegate unwindToTarget:unwindTarget];
-        _state = NavigationUnwindTokenStateUnwound;
-    } else {
-        _unwindTarget = unwindTarget;
-        _state = NavigationUnwindTokenStateReady;
+        case NavigationUnwindTokenStateTriggered:
+            [_delegate unwindToTarget:unwindTarget];
+            _state = NavigationUnwindTokenStateUnwound;
+            break;
+        case NavigationUnwindTokenStateReady:
+            @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                           reason:@"Unwind target has already been set"
+                                         userInfo:nil];
+        case NavigationUnwindTokenStateUnwound:
+            @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                           reason:@"Unwind has already happened"
+                                         userInfo:nil];
     }
 }
 
@@ -36,7 +45,7 @@ typedef NS_ENUM(NSInteger, NavigationUnwindTokenState) {
     switch (_state) {
         case NavigationUnwindTokenStateIdle:
             _state = NavigationUnwindTokenStateTriggered;
-            return;
+            break;
 
         case NavigationUnwindTokenStateReady: {
             __auto_type unwindTarget = _unwindTarget;
@@ -44,7 +53,7 @@ typedef NS_ENUM(NSInteger, NavigationUnwindTokenState) {
                 [_delegate unwindToTarget:unwindTarget];
             }
             _state = NavigationUnwindTokenStateUnwound;
-            return;
+            break;
         }
         case NavigationUnwindTokenStateTriggered:
             @throw [NSException exceptionWithName:NSInternalInconsistencyException
