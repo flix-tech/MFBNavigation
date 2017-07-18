@@ -29,6 +29,20 @@ context(@"has unwind target", ^{
 
         OCMVerifyAll(unwindDelegateMock);
     });
+
+    context(@"target deallocated", ^{
+        beforeEach(^{
+            unwindTarget = nil;
+        });
+
+        it(@"does nothing", ^{
+            [token unwind];
+        });
+    });
+
+    it(@"throws if target is set once more", ^{
+        XCTAssertThrows([token setUnwindTarget:unwindTarget]);
+    });
 });
 
 context(@"triggered", ^{
@@ -42,6 +56,23 @@ context(@"triggered", ^{
         [token setUnwindTarget:unwindTarget];
 
         OCMVerifyAll(unwindDelegateMock);
+    });
+
+    it(@"throws if unwind called once more", ^{
+        XCTAssertThrows([token unwind]);
+    });
+});
+
+context(@"unwound", ^{
+    beforeEach(^{
+        [unwindDelegateMock makeNice];
+        [token setUnwindTarget:unwindTarget];
+        [token unwind];
+        [unwindDelegateMock makeStrict];
+    });
+
+    it(@"throws when asked to unwind", ^{
+        XCTAssertThrows([token unwind]);
     });
 });
 
