@@ -130,14 +130,10 @@ describe(@"navigation", ^{
             it(@"calls completion", ^{
                 id pushedViewControllerStub = [NSObject new];
 
-                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
-                    dispatch_async(dispatch_get_main_queue(), block);
-
-                    return YES;
-                }];
+                id queueBlockArgument = [OCMArg invokeBlock];
 
                 [queueMock makeNice];
-                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+                OCMExpect([queueMock enqueueBlock:queueBlockArgument]);
 
                 [navigationControllerMock makeNice];
 
@@ -255,14 +251,10 @@ describe(@"navigation", ^{
                 NSArray *viewControllersStub = @[ @"A", @"B" ];
                 OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
 
-                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
-                    dispatch_async(dispatch_get_main_queue(), block);
-
-                    return YES;
-                }];
+                id queueBlockArgument = [OCMArg invokeBlock];
 
                 [queueMock makeNice];
-                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+                OCMExpect([queueMock enqueueBlock:queueBlockArgument]);
 
                 [navigationControllerMock makeNice];
 
