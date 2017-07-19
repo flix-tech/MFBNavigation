@@ -56,13 +56,8 @@ typedef NS_ENUM(NSInteger, NavigationUnwindTokenState) {
             break;
         }
         case NavigationUnwindTokenStateTriggered:
-            @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                           reason:@"Unwind has already been triggered"
-                                         userInfo:nil];
         case NavigationUnwindTokenStateUnwound:
-            @throw [NSException exceptionWithName:NSInternalInconsistencyException
-                                           reason:@"Unwind has already happened"
-                                         userInfo:nil];
+            break;
     }
 }
 

@@ -57,10 +57,6 @@ context(@"triggered", ^{
 
         OCMVerifyAll(unwindDelegateMock);
     });
-
-    it(@"unwind is idempotent", ^{
-        [token unwind];
-    });
 });
 
 context(@"unwound", ^{

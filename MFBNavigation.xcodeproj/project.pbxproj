@@ -28,7 +28,7 @@
 		E2D7F9D81F1E568E00166297 /* MFBUnwindToken.h in Headers */ = {isa = PBXBuildFile; fileRef = E2D7F9D71F1E568E00166297 /* MFBUnwindToken.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E2D7F9DB1F1E56CD00166297 /* MFBUIKitUnwindToken.h in Headers */ = {isa = PBXBuildFile; fileRef = E2D7F9D91F1E56CD00166297 /* MFBUIKitUnwindToken.h */; };
 		E2D7F9DC1F1E56CD00166297 /* MFBUIKitUnwindToken.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D7F9DA1F1E56CD00166297 /* MFBUIKitUnwindToken.m */; };
-		E2D7F9DE1F1E59FC00166297 /* MFBUIKitUnwindToken.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D7F9DD1F1E59FC00166297 /* MFBUIKitUnwindToken.m */; };
+		E2D7F9DE1F1E59FC00166297 /* MFBUIKitUnwindTokenSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = E2D7F9DD1F1E59FC00166297 /* MFBUIKitUnwindTokenSpec.m */; };
 		E2DEEA881E66D23300A1DF4D /* MFBNavigationChildrenReplacer.h in Headers */ = {isa = PBXBuildFile; fileRef = E2DEEA861E66D23300A1DF4D /* MFBNavigationChildrenReplacer.h */; };
 		E2DEEA891E66D23300A1DF4D /* MFBNavigationChildrenReplacer.m in Sources */ = {isa = PBXBuildFile; fileRef = E2DEEA871E66D23300A1DF4D /* MFBNavigationChildrenReplacer.m */; };
 		E2DEEA8B1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = E2DEEA8A1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m */; };
@@ -88,7 +88,7 @@
 		E2D7F9D71F1E568E00166297 /* MFBUnwindToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFBUnwindToken.h; sourceTree = "<group>"; };
 		E2D7F9D91F1E56CD00166297 /* MFBUIKitUnwindToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFBUIKitUnwindToken.h; sourceTree = "<group>"; };
 		E2D7F9DA1F1E56CD00166297 /* MFBUIKitUnwindToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBUIKitUnwindToken.m; sourceTree = "<group>"; };
-		E2D7F9DD1F1E59FC00166297 /* MFBUIKitUnwindToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBUIKitUnwindToken.m; sourceTree = "<group>"; };
+		E2D7F9DD1F1E59FC00166297 /* MFBUIKitUnwindTokenSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBUIKitUnwindTokenSpec.m; sourceTree = "<group>"; };
 		E2DEEA861E66D23300A1DF4D /* MFBNavigationChildrenReplacer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFBNavigationChildrenReplacer.h; sourceTree = "<group>"; };
 		E2DEEA871E66D23300A1DF4D /* MFBNavigationChildrenReplacer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBNavigationChildrenReplacer.m; sourceTree = "<group>"; };
 		E2DEEA8A1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MFBNavigationChildrenReplacerSpec.m; sourceTree = "<group>"; };
@@ -169,7 +169,7 @@
 				E21864C91DDCE27600531549 /* MFBModalNavigatorSpec.m */,
 				E2DEEA8A1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m */,
 				E2FD4C131DDF3D1B0039A531 /* MFBPushPopNavigatorSpec.m */,
-				E2D7F9DD1F1E59FC00166297 /* MFBUIKitUnwindToken.m */,
+				E2D7F9DD1F1E59FC00166297 /* MFBUIKitUnwindTokenSpec.m */,
 			);
 			path = MFBNavigationTests;
 			sourceTree = "<group>";
@@ -321,7 +321,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E21864CA1DDCE27600531549 /* MFBModalNavigatorSpec.m in Sources */,
-				E2D7F9DE1F1E59FC00166297 /* MFBUIKitUnwindToken.m in Sources */,
+				E2D7F9DE1F1E59FC00166297 /* MFBUIKitUnwindTokenSpec.m in Sources */,
 				E2DEEA8B1E66D27B00A1DF4D /* MFBNavigationChildrenReplacerSpec.m in Sources */,
 				E2FD4C141DDF3D1B0039A531 /* MFBPushPopNavigatorSpec.m in Sources */,
 				E21864CC1DDCE2F800531549 /* Dummy.swift in Sources */,
