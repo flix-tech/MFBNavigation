@@ -93,25 +93,17 @@
     }];
 }
 
-- (id<MFBUnwindToken>)pushViewController:(UIViewController *)viewController
-                                animated:(BOOL)animated
-                              completion:(nullable dispatch_block_t)completion
+- (void)pushViewController:(UIViewController *)viewController
+                  animated:(BOOL)animated
+                completion:(dispatch_block_t)completion
 {
     NSCParameterAssert(viewController != nil);
-
-    __auto_type token = [_unwindTokenFactory unwindTokenWithDelegate:self];
 
     [_transitionQueue enqueueBlock:^{
         __auto_type navigationController = _navigationController;
 
         if (!navigationController) {
             return;
-        }
-
-        __auto_type unwindTarget = navigationController.topViewController;
-
-        if (unwindTarget) {
-            [token setUnwindTarget:unwindTarget];
         }
 
         if (navigationController.view.window) {
@@ -128,8 +120,6 @@
                                                           completion:completion];
         }
     }];
-
-    return token;
 }
 
 - (void)popToViewController:(UIViewController *)viewController animated:(BOOL)animated
@@ -211,6 +201,21 @@
 - (void)dismissModalViewControllerAnimated:(BOOL)animated completion:(dispatch_block_t)completion
 {
     [_modalNavigator dismissModalViewControllerAnimated:animated completion:completion];
+}
+
+- (id<MFBUnwindToken>)currentUnwindToken
+{
+    __auto_type token = [_unwindTokenFactory unwindTokenWithDelegate:self];
+
+    [_transitionQueue enqueueBlock:^{
+        __auto_type unwindTarget = _navigationController.topViewController;
+
+        if (unwindTarget) {
+            [token setUnwindTarget:unwindTarget];
+        }
+    }];
+
+    return token;
 }
 
 #pragma mark - Test API
