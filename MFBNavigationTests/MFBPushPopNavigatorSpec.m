@@ -2,7 +2,6 @@
 @import OCMock;
 @import Quick;
 
-#import "MFBNavigationChildrenReplacer.h"
 #import "MFBPushPopNavigator.h"
 #import "MFBPushPopNavigator+Test.h"
 #import "MFBSuspendibleUIQueue.h"

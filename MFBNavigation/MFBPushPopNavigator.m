@@ -1,11 +1,10 @@
 #import "MFBModalNavigator.h"
-#import "MFBNavigationChildrenReplacer.h"
 #import "MFBPushPopNavigator.h"
 #import "MFBPushPopNavigator+Test.h"
 #import "MFBSuspendibleUIQueue.h"
 
 
-@interface MFBPushPopNavigator () <UINavigationControllerDelegate>
+@interface MFBPushPopNavigator () <UINavigationControllerDelegate, MFBUIKitUnwindDelegate>
 
 @end
 
@@ -16,6 +15,7 @@
     MFBNavigationChildrenReplacer *_childrenReplacer;
     dispatch_block_t _transitionCompletion;
     MFBSuspendibleUIQueue *_transitionQueue;
+    MFBUIKitUnwindTokenFactory *_unwindTokenFactory;
 }
 
 - (instancetype)init
@@ -45,6 +45,7 @@
                                                                             viewController:navigationController];
 
     _childrenReplacer = [MFBNavigationChildrenReplacer new];
+    _unwindTokenFactory = [MFBUIKitUnwindTokenFactory new];
 
     return self;
 }
@@ -92,15 +93,25 @@
     }];
 }
 
-- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated completion:(dispatch_block_t)completion
+- (id<MFBUnwindToken>)pushViewController:(UIViewController *)viewController
+                                animated:(BOOL)animated
+                              completion:(nullable dispatch_block_t)completion
 {
     NSCParameterAssert(viewController != nil);
+
+    __auto_type token = [_unwindTokenFactory unwindTokenWithDelegate:self];
 
     [_transitionQueue enqueueBlock:^{
         __auto_type navigationController = _navigationController;
 
         if (!navigationController) {
             return;
+        }
+
+        __auto_type unwindTarget = navigationController.topViewController;
+
+        if (unwindTarget) {
+            [token setUnwindTarget:unwindTarget];
         }
 
         if (navigationController.view.window) {
@@ -117,6 +128,8 @@
                                                           completion:completion];
         }
     }];
+
+    return token;
 }
 
 - (void)popToViewController:(UIViewController *)viewController animated:(BOOL)animated
@@ -209,6 +222,13 @@
     _childrenReplacer = childrenReplacer;
 }
 
+- (void)setUnwindTokenFactory:(MFBUIKitUnwindTokenFactory *)unwindTokenFactory
+{
+    NSCParameterAssert(unwindTokenFactory != nil);
+
+    _unwindTokenFactory = unwindTokenFactory;
+}
+
 #pragma mark - Navigation controller delegate
 
 - (void)navigationController:(UINavigationController *)navigationController
@@ -260,6 +280,15 @@
     if ([delegate respondsToSelector:_cmd]) {
         [delegate navigationController:navigationController didShowViewController:viewController animated:animated];
     }
+}
+
+#pragma mark - UIKit Unwind Delegate
+
+- (void)unwindToTarget:(UIViewController *)unwindTarget
+{
+    NSCParameterAssert(unwindTarget != nil);
+
+    [self popToViewController:unwindTarget animated:YES];
 }
 
 @end
