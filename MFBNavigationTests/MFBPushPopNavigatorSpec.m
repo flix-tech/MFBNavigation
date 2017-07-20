@@ -2,7 +2,6 @@
 @import OCMock;
 @import Quick;
 
-#import "MFBNavigationChildrenReplacer.h"
 #import "MFBPushPopNavigator.h"
 #import "MFBPushPopNavigator+Test.h"
 #import "MFBSuspendibleUIQueue.h"
@@ -714,6 +713,73 @@ describe(@"delegate forwarding", ^{
                                        fromViewController:fromVCStub
                                          toViewController:toVCStub]).to(raiseException());
         });
+    });
+});
+
+describe(@"current unwind token", ^{
+    __block id queueMock;
+    __block id unwindTokenFactoryMock;
+    __block id unwindTokenMock;
+
+    beforeEach(^{
+        queueMock = OCMStrictClassMock(MFBSuspendibleUIQueue.class);
+
+        OCMStub([navigationControllerMock setDelegate:OCMOCK_ANY]);
+
+        pushPopNavigator = [[MFBPushPopNavigator alloc] initWithNavigationController:navigationControllerMock
+                                                                     transitionQueue:queueMock
+                                                                      modalNavigator:modalNavigatorMock];
+
+        unwindTokenFactoryMock = OCMStrictClassMock(MFBUIKitUnwindTokenFactory.class);
+        unwindTokenMock = OCMStrictClassMock(MFBUIKitUnwindToken.class);
+
+        [pushPopNavigator setUnwindTokenFactory:unwindTokenFactoryMock];
+    });
+
+    it(@"gets token from factory & sets its unwind target if navigation controller is not empty", ^{
+        id topViewControllerStub = [NSObject new];
+
+        OCMExpect([unwindTokenFactoryMock unwindTokenWithDelegate:(id) pushPopNavigator]).andReturn(unwindTokenMock);
+
+        id enqueuedBlockArgument = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+            OCMExpect([navigationControllerMock topViewController]).andReturn(topViewControllerStub);
+            OCMExpect([unwindTokenMock setUnwindTarget:topViewControllerStub]);
+
+            block();
+
+            return YES;
+        }];
+
+        OCMExpect([queueMock enqueueBlock:enqueuedBlockArgument]);
+
+        __auto_type token = [pushPopNavigator currentUnwindToken];
+
+        XCTAssertEqual(token, unwindTokenMock);
+
+        OCMVerifyAll(queueMock);
+        OCMVerifyAll(navigationControllerMock);
+        OCMVerifyAll(unwindTokenMock);
+    });
+
+    it(@"gets token from factory & doesn't set unwind factory if there's none", ^{
+        OCMExpect([unwindTokenFactoryMock unwindTokenWithDelegate:(id) pushPopNavigator]).andReturn(unwindTokenMock);
+
+        id enqueuedBlockArgument = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+            OCMExpect([navigationControllerMock topViewController]).andReturn(nil);
+
+            block();
+
+            return YES;
+        }];
+
+        OCMExpect([queueMock enqueueBlock:enqueuedBlockArgument]);
+
+        __auto_type token = [pushPopNavigator currentUnwindToken];
+
+        XCTAssertEqual(token, unwindTokenMock);
+
+        OCMVerifyAll(queueMock);
+        OCMVerifyAll(navigationControllerMock);
     });
 });
 

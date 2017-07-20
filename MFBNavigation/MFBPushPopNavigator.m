@@ -1,11 +1,10 @@
 #import "MFBModalNavigator.h"
-#import "MFBNavigationChildrenReplacer.h"
 #import "MFBPushPopNavigator.h"
 #import "MFBPushPopNavigator+Test.h"
 #import "MFBSuspendibleUIQueue.h"
 
 
-@interface MFBPushPopNavigator () <UINavigationControllerDelegate>
+@interface MFBPushPopNavigator () <UINavigationControllerDelegate, MFBUIKitUnwindDelegate>
 
 @end
 
@@ -16,6 +15,7 @@
     MFBNavigationChildrenReplacer *_childrenReplacer;
     dispatch_block_t _transitionCompletion;
     MFBSuspendibleUIQueue *_transitionQueue;
+    MFBUIKitUnwindTokenFactory *_unwindTokenFactory;
 }
 
 - (instancetype)init
@@ -45,6 +45,7 @@
                                                                             viewController:navigationController];
 
     _childrenReplacer = [MFBNavigationChildrenReplacer new];
+    _unwindTokenFactory = [MFBUIKitUnwindTokenFactory new];
 
     return self;
 }
@@ -92,7 +93,9 @@
     }];
 }
 
-- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated completion:(dispatch_block_t)completion
+- (void)pushViewController:(UIViewController *)viewController
+                  animated:(BOOL)animated
+                completion:(dispatch_block_t)completion
 {
     NSCParameterAssert(viewController != nil);
 
@@ -200,6 +203,21 @@
     [_modalNavigator dismissModalViewControllerAnimated:animated completion:completion];
 }
 
+- (id<MFBUnwindToken>)currentUnwindToken
+{
+    __auto_type token = [_unwindTokenFactory unwindTokenWithDelegate:self];
+
+    [_transitionQueue enqueueBlock:^{
+        __auto_type unwindTarget = _navigationController.topViewController;
+
+        if (unwindTarget) {
+            [token setUnwindTarget:unwindTarget];
+        }
+    }];
+
+    return token;
+}
+
 #pragma mark - Test API
 
 - (void)setNavigationChildrenReplacer:(MFBNavigationChildrenReplacer *)childrenReplacer
@@ -207,6 +225,13 @@
     NSCParameterAssert(childrenReplacer != nil);
 
     _childrenReplacer = childrenReplacer;
+}
+
+- (void)setUnwindTokenFactory:(MFBUIKitUnwindTokenFactory *)unwindTokenFactory
+{
+    NSCParameterAssert(unwindTokenFactory != nil);
+
+    _unwindTokenFactory = unwindTokenFactory;
 }
 
 #pragma mark - Navigation controller delegate
@@ -260,6 +285,15 @@
     if ([delegate respondsToSelector:_cmd]) {
         [delegate navigationController:navigationController didShowViewController:viewController animated:animated];
     }
+}
+
+#pragma mark - UIKit Unwind Delegate
+
+- (void)unwindToTarget:(UIViewController *)unwindTarget
+{
+    NSCParameterAssert(unwindTarget != nil);
+
+    [self popToViewController:unwindTarget animated:YES];
 }
 
 @end

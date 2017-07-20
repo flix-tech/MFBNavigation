@@ -13,3 +13,4 @@ FOUNDATION_EXPORT const unsigned char MFBNavigationVersionString[];
 #import <MFBNavigation/MFBModalNavigator.h>
 #import <MFBNavigation/MFBPushPopNavigator.h>
 #import <MFBNavigation/MFBSuspendibleUIQueue.h>
+#import <MFBNavigation/MFBUnwindToken.h>

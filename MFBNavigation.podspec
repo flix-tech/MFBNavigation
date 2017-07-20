@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/flix-tech/MFBNavigation.git", :tag => "#{s.version}" }
 
   s.source_files  = "Classes", "MFBNavigation/**/*.{h,m}"
-  s.public_header_files = 'MFBNavigation/**/{MFBAlertNavigation,MFBAlertProxy,MFBModalNavigation,MFBModalNavigator,MFBPushPopNavigation,MFBPushPopNavigator,MFBSuspendibleUIQueue}.h'
+  s.public_header_files = 'MFBNavigation/**/{MFBAlertNavigation,MFBAlertProxy,MFBModalNavigation,MFBModalNavigator,MFBPushPopNavigation,MFBPushPopNavigator,MFBSuspendibleUIQueue,MFBUnwindToken}.h'
 
   s.frameworks = "UIKit"
 
