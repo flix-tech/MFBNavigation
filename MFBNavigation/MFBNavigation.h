@@ -8,6 +8,7 @@ FOUNDATION_EXPORT const unsigned char MFBNavigationVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <MFBNavigation/PublicHeader.h>
 
+#import <MFBNavigation/MFBAlertController.h>
 #import <MFBNavigation/MFBAlertNavigation.h>
 #import <MFBNavigation/MFBAlertProxy.h>
 #import <MFBNavigation/MFBModalNavigator.h>
