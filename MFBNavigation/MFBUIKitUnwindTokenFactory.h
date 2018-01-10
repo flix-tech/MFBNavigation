@@ -1,11 +1,3 @@
-//
-//  MFBUIKitUnwindTokenFactory.h
-//  MFBNavigation
-//
-//  Created by Nikolay Kasyanov on 19.07.17.
-//  Copyright © 2017 FlixBus GmbH. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 
 #import "MFBUIKitUnwindToken.h"
