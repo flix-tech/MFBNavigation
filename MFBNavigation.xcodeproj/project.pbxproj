@@ -259,8 +259,9 @@
 		E218648D1DDCD41700531549 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				CLASSPREFIX = MFB;
 				LastUpgradeCheck = 0820;
-				ORGANIZATIONNAME = "FlixBus GmbH";
+				ORGANIZATIONNAME = "FlixMobility Tech GmbH";
 				TargetAttributes = {
 					E21864951DDCD41700531549 = {
 						CreatedOnToolsVersion = 8.2;
