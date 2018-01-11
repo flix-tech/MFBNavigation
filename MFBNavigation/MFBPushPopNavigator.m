@@ -263,7 +263,9 @@
             [_transitionQueue resume];
         }];
 
-    [_transitionQueue suspend];
+    if (animated) {
+        [_transitionQueue suspend];
+    }
 }
 
 - (void)navigationController:(UINavigationController *)navigationController

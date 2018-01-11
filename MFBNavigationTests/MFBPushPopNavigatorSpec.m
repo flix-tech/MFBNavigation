@@ -716,6 +716,35 @@ describe(@"delegate forwarding", ^{
     });
 });
 
+describe(@"external navigation", ^{
+    __block id<UINavigationControllerDelegate> internalDelegate;
+    __block id viewControllerStub;
+    __block id transitionQueueMock;
+
+    beforeEach(^{
+        viewControllerStub = [NSObject new];
+        transitionQueueMock = OCMStrictClassMock([MFBSuspendibleUIQueue class]);
+
+        OCMStub([navigationControllerMock setDelegate:[OCMArg checkWithBlock:^(id obj) {
+            internalDelegate = obj;
+
+            return YES;
+        }]]);
+
+        pushPopNavigator = [[MFBPushPopNavigator alloc] initWithNavigationController:navigationControllerMock
+                                                                     transitionQueue:transitionQueueMock
+                                                                      modalNavigator:modalNavigatorMock];
+
+        OCMStub([navigationControllerMock transitionCoordinator]).andReturn(nil);
+    });
+
+    it(@"doesn't suspend queue on willShowViewController when not animated", ^{
+        [internalDelegate navigationController:navigationControllerMock
+                        willShowViewController:viewControllerStub
+                                      animated:NO];
+    });
+});
+
 describe(@"current unwind token", ^{
     __block id queueMock;
     __block id unwindTokenFactoryMock;
