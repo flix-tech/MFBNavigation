@@ -309,6 +309,91 @@ describe(@"navigation", ^{
         });
     });
 
+    describe(@"replace view controller", ^{
+        context(@"window", ^{
+            beforeEach(^{
+                id viewStub = OCMStrictClassMock(UIView.class);
+                OCMStub([viewStub window]).andReturn([NSObject new]);
+                OCMStub([navigationControllerMock view]).andReturn(viewStub);
+            });
+
+            it(@"is enqueued & performed when navigation controller is visible", ^{
+                id oldViewControllerStub = [NSObject new];
+                id newViewControllerStub = [NSObject new];
+
+                NSArray *viewControllersStub = @[ @"A", @"B", @"C", oldViewControllerStub ];
+                NSArray *expectedViewControllers = @[ @"A", @"B", @"C", newViewControllerStub ];
+
+                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
+
+                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+                    dispatch_async(dispatch_get_main_queue(), block);
+
+                    return YES;
+                }];
+
+                [queueMock setExpectationOrderMatters:YES];
+                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+                OCMExpect([queueMock suspend]);
+
+                OCMExpect([(UINavigationController *) navigationControllerMock setViewControllers:expectedViewControllers
+                                                                                         animated:YES]);
+
+                [pushPopNavigator replaceViewController:oldViewControllerStub
+                                     withViewController:newViewControllerStub
+                                               animated:YES];
+
+                OCMVerifyAllWithDelay(queueMock, 1);
+
+                OCMExpect([queueMock resume]);
+                [navigationControllerDelegate navigationController:navigationControllerMock
+                                             didShowViewController:newViewControllerStub
+                                                          animated:YES];
+                OCMVerifyAllWithDelay(queueMock, 1);
+
+                OCMVerifyAll(navigationControllerMock);
+            });
+        });
+
+        context(@"no window", ^{
+            beforeEach(^{
+                id viewStub = OCMStrictClassMock(UIView.class);
+                OCMStub([viewStub window]).andReturn(nil);
+                OCMStub([navigationControllerMock view]).andReturn(viewStub);
+            });
+
+            it(@"is enqueued and delegated to children replacer", ^{
+                id oldViewControllerStub = [NSObject new];
+                id newViewControllerStub = [NSObject new];
+
+                NSArray *viewControllersStub = @[ @"A", @"B", @"C", oldViewControllerStub ];
+                NSArray *expectedViewControllers = @[ @"A", @"B", @"C", newViewControllerStub ];
+
+                id queueBlockValidator = [OCMArg checkWithBlock:^(dispatch_block_t block) {
+                    dispatch_async(dispatch_get_main_queue(), block);
+
+                    return YES;
+                }];
+
+                OCMExpect([queueMock enqueueBlock:queueBlockValidator]);
+
+                OCMStub([navigationControllerMock viewControllers]).andReturn(viewControllersStub);
+
+                OCMExpect([childrenReplacerMock replaceChildrenInNavigationController:navigationControllerMock
+                                                                         withChildren:expectedViewControllers
+                                                                           completion:nil]);
+
+                [pushPopNavigator replaceViewController:oldViewControllerStub
+                                     withViewController:newViewControllerStub
+                                               animated:YES];
+
+                OCMVerifyAllWithDelay(childrenReplacerMock, 1);
+                OCMVerifyAll(navigationControllerMock);
+                OCMVerifyAll(queueMock);
+            });
+        });
+    });
+
     describe(@"pop to view controller", ^{
         sharedExamples(@"target view controller is alrady on top of navigation stack", ^(QCKDSLSharedExampleContext _) {
             it(@"does not suspend queue and does not touch navigation controller", ^{
