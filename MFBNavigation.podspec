@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "MFBNavigation"
-  s.version      = "0.9.4"
+  s.version      = "0.9.5"
   s.summary      = "Set of calsses for predictable navigation in iOS apps."
   s.homepage     = "https://github.com/flix-tech/MFBNavigation"
 
