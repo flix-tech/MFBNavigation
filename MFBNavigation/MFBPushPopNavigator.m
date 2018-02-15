@@ -218,6 +218,41 @@
     return token;
 }
 
+- (void)replaceViewController:(UIViewController *)viewController
+           withViewController:(UIViewController *)newViewController
+                     animated:(BOOL)animated
+{
+    NSCParameterAssert(viewController != nil);
+    NSCParameterAssert(newViewController != nil);
+
+    [_transitionQueue enqueueBlock:^{
+        __auto_type navigationController = _navigationController;
+
+        if (!navigationController) {
+            return;
+        }
+
+        NSMutableArray<UIViewController *> *newViewControllers = [navigationController.viewControllers mutableCopy];
+
+        __auto_type index = [newViewControllers indexOfObject:viewController];
+
+        if (index == NSNotFound) {
+            return;
+        }
+
+        [newViewControllers replaceObjectAtIndex:index withObject:newViewController];
+
+        if (navigationController.view.window) {
+            [_transitionQueue suspend];
+            [navigationController setViewControllers:newViewControllers animated:animated];
+        } else {
+            [_childrenReplacer replaceChildrenInNavigationController:navigationController
+                                                        withChildren:newViewControllers
+                                                          completion:nil];
+        }
+    }];
+}
+
 #pragma mark - Test API
 
 - (void)setNavigationChildrenReplacer:(MFBNavigationChildrenReplacer *)childrenReplacer

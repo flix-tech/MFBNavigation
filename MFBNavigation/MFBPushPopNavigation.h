@@ -14,6 +14,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)popViewControllerAnimated:(BOOL)animated completion:(nullable dispatch_block_t)completion;
 - (void)popToRootAnimated:(BOOL)animated completion:(nullable dispatch_block_t)completion;
 - (void)popToViewController:(UIViewController *)viewController animated:(BOOL)animated;
+- (void)replaceViewController:(UIViewController *)viewController
+           withViewController:(UIViewController *)newViewController
+                     animated:(BOOL)animated;
 
 - (id<MFBUnwindToken>)currentUnwindToken;
 
